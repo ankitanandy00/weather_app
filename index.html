@@ -56,13 +56,6 @@
                         </div>
                     </div>
                     <div class="info-item">
-                        <i class="fas fa-eye"></i>
-                        <div>
-                            <p class="visibility">10 km</p>
-                            <p>Visibility</p>
-                        </div>
-                    </div>
-                    <div class="info-item">
                         <i class="fas fa-compress-alt"></i>
                         <div>
                             <p class="pressure">1013 hPa</p>
@@ -74,6 +67,13 @@
                         <div>
                             <p class="precipitation">0 mm</p>
                             <p>Precipitation</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-eye"></i>
+                        <div>
+                            <p class="visibility">10 Km</p>
+                            <p>Visibility</p>
                         </div>
                     </div>
                 </div>
@@ -133,11 +133,18 @@
                 // Additional info
                 document.querySelector(".feels-like").innerHTML = Math.round(data.main.feels_like) + "°C";
                 document.querySelector(".pressure").innerHTML = data.main.pressure + " hPa";
-                document.querySelector(".visibility").innerHTML = (data.visibility / 1000) + " km";
                 
                 // Precipitation (if available)
                 const precipitation = data.rain ? (data.rain["1h"] || 0) : 0;
                 document.querySelector(".precipitation").innerHTML = precipitation + " mm";
+                
+                // Visibility (if available)
+                if (data.visibility !== undefined) {
+                    const visibilityKm = (data.visibility / 1000).toFixed(1);
+                    document.querySelector(".visibility").innerHTML = visibilityKm + " km";
+                } else {
+                    document.querySelector(".visibility").innerHTML = 'N/A';
+                }
                 
                 // Sun info - convert unix timestamps to readable time
                 const sunriseTime = new Date(data.sys.sunrise * 1000);
@@ -207,7 +214,7 @@
 
         // Check weather for default city on page load
         window.addEventListener("load", () => {
-            checkWeather("New York");
+            checkWeather("Kolkata");
         });
     </script>        
 </body>
