@@ -5,64 +5,210 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather App</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <div class="container">
         <div class="card">
-        <div class="search">
-            <input type="text" placeholder="Enter city name" spellcheck="false">
-            <button>
-                <img src="weather-app-img/search.png" alt="Search">
-            </button>
-        </div>
+            <div class="search">
+                <input type="text" placeholder="Enter city name" spellcheck="false">
+                <button>
+                    <img src="weather-app-img/search.png" alt="Search">
+                </button>
+            </div>
+            
+            <div class="error">
+                <p>City not found</p>
+            </div>
 
-        <div class="weather">
-            <img src="weather-app-img/rain.png" class="weather-icon">
-            <h1 class="temp">22°C</h1>
-            <h2 class="city">New York</h2>
-        </div>
-        <div class="details">
-            <div class="col">
-                <img src="weather-app-img/humidity.png">
-                <div>
-                    <p class="humidity">50%</p>
-                    <p>Humidity</p>
+            <div class="weather">
+                <div class="weather-main">
+                    <img src="weather-app-img/rain.png" class="weather-icon">
+                    <h1 class="temp">22°C</h1>
+                    <h2 class="city">New York</h2>
+                    <p class="weather-description">Rain</p>
+                    <p class="date-time">Monday, 12:30 PM</p>
+                </div>
+                
+                <div class="details">
+                    <div class="col">
+                        <img src="weather-app-img/humidity.png">
+                        <div>
+                            <p class="humidity">50%</p>
+                            <p>Humidity</p>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <img src="weather-app-img/wind.png">
+                        <div>
+                            <p class="wind">15 km/h</p>
+                            <p>Wind Speed</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="additional-info">
+                    <div class="info-item">
+                        <i class="fas fa-temperature-high"></i>
+                        <div>
+                            <p class="feels-like">24°C</p>
+                            <p>Feels Like</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-eye"></i>
+                        <div>
+                            <p class="visibility">10 km</p>
+                            <p>Visibility</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-compress-alt"></i>
+                        <div>
+                            <p class="pressure">1013 hPa</p>
+                            <p>Pressure</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-water"></i>
+                        <div>
+                            <p class="precipitation">0 mm</p>
+                            <p>Precipitation</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sun-info">
+                    <div class="info-item">
+                        <i class="fas fa-sun"></i>
+                        <div>
+                            <p class="sunrise">06:30 AM</p>
+                            <p>Sunrise</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-moon"></i>
+                        <div>
+                            <p class="sunset">07:45 PM</p>
+                            <p>Sunset</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col">
-                <img src="weather-app-img/wind.png">
-                <div>
-                    <p class="wind">15 km/h</p>
-                    <p>Wind Speed</p>
-                </div>
-            </div>
         </div>
-<script>
-    const apiKey="ebd73f3cfb8ceaba60aba1749b0a9386";
-    const apiUrl="https://api.openweathermap.org/data/2.5/weather?&units=metric&q=";
+    </div>
 
-    const searchBox=document.querySelector(".search input");
-    const searchBtn=document.querySelector(".search input");
+    <script>
+        const apiKey="ebd73f3cfb8ceaba60aba1749b0a9386";
+        const apiUrl="https://api.openweathermap.org/data/2.5/weather?&units=metric&q=";
 
-    async function checkWeather(city){
-        const response=await fetch(apiUrl+city+`&appid=${apiKey}`);
-        var data=await response.json();
+        const searchBox=document.querySelector(".search input");
+        const searchBtn=document.querySelector(".search button");
+        const weatherIcon=document.querySelector(".weather-icon");
+        const errorBox = document.querySelector(".error");
 
-        console.log()
+        async function checkWeather(city){
+            try {
+                // Hide error message if visible
+                errorBox.style.display = "none";
+                
+                const response = await fetch(apiUrl+city+`&appid=${apiKey}`);
+                var data = await response.json();
+                
+                console.log(data); // Log the complete data for debugging
 
-        document.querySelector(".city").innerHTML=data.name;
-        document.querySelector(".temp").innerHTML=Math.round(data.main.temp)+"°C";
-        document.querySelector(".humidity").innerHTML=data.main.humidity+"%";
-        document.querySelector(".wind").innerHTML=data.wind.speed+"km/hr";
+                if(data.cod === "404") {
+                    document.querySelector(".weather").style.display = "none";
+                    errorBox.style.display = "block";
+                    return;
+                }
 
+                // Main weather info
+                document.querySelector(".city").innerHTML = data.name + ", " + data.sys.country;
+                document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°C";
+                document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+                document.querySelector(".wind").innerHTML = data.wind.speed + " km/h";
+                document.querySelector(".weather-description").innerHTML = data.weather[0].description;
+                
+                // Additional info
+                document.querySelector(".feels-like").innerHTML = Math.round(data.main.feels_like) + "°C";
+                document.querySelector(".pressure").innerHTML = data.main.pressure + " hPa";
+                document.querySelector(".visibility").innerHTML = (data.visibility / 1000) + " km";
+                
+                // Precipitation (if available)
+                const precipitation = data.rain ? (data.rain["1h"] || 0) : 0;
+                document.querySelector(".precipitation").innerHTML = precipitation + " mm";
+                
+                // Sun info - convert unix timestamps to readable time
+                const sunriseTime = new Date(data.sys.sunrise * 1000);
+                const sunsetTime = new Date(data.sys.sunset * 1000);
+                document.querySelector(".sunrise").innerHTML = formatTime(sunriseTime);
+                document.querySelector(".sunset").innerHTML = formatTime(sunsetTime);
+                
+                // Date and time
+                document.querySelector(".date-time").innerHTML = formatDateTime(new Date());
+                
+                // Update weather icon based on weather condition
+                if(data.weather[0].main == "Clouds") {
+                    weatherIcon.src = "weather-app-img/clouds.png";
+                }
+                else if(data.weather[0].main == "Clear") {
+                    weatherIcon.src = "weather-app-img/clear.png";
+                }
+                else if(data.weather[0].main == "Rain") {
+                    weatherIcon.src = "weather-app-img/rain.png";
+                }
+                else if(data.weather[0].main == "Drizzle") {
+                    weatherIcon.src = "weather-app-img/drizzle.png";
+                }
+                else if(data.weather[0].main == "Mist") {
+                    weatherIcon.src = "weather-app-img/mist.png";
+                }
+                else if(data.weather[0].main == "Snow") {
+                    weatherIcon.src = "weather-app-img/snow.png";
+                }
+                
+                document.querySelector(".weather").style.display = "block";
+            } catch (error) {
+                console.error("Error fetching weather data:", error);
+                document.querySelector(".weather").style.display = "none";
+                errorBox.style.display = "block";
+                errorBox.querySelector("p").innerHTML = "An error occurred while fetching weather data";
+            }
+        }
+
+        function formatTime(date) {
+            let hours = date.getHours();
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            return hours + ':' + minutes + ' ' + ampm;
+        }
+
+        function formatDateTime(date) {
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dayName = days[date.getDay()];
+            return dayName + ', ' + formatTime(date);
+        }
+
+        searchBtn.addEventListener("click", () => {
+            if (searchBox.value.trim() !== "") {
+                checkWeather(searchBox.value);
+            }
+        });
         
-    }
+        // Add event listener for Enter key
+        searchBox.addEventListener("keypress", (event) => {
+            if(event.key === "Enter" && searchBox.value.trim() !== "") {
+                checkWeather(searchBox.value);
+            }
+        });
 
-    searchBtn.addEventListener("click",()=>{
-        checkWeather(searchBox.value);
-    })
-
-    
-
-</script>        
+        // Check weather for default city on page load
+        window.addEventListener("load", () => {
+            checkWeather("New York");
+        });
+    </script>        
 </body>
 </html>
